@@ -10,8 +10,12 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: "sqlite",
-      database: "database.sqlite",
+      type: "postgres",
+      host: "nestjs-db",
+      port: 5432,
+      username: "root",
+      password: "root",
+      database: "test",
       entities: [__dirname + "/**/*.entity{.ts,.js}"],
       synchronize: true,
     }),

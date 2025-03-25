@@ -5,14 +5,39 @@ services:
     container_name: nestjs-graphql
     build: .
     ports: 
-      - 3000:3000
-      
+      - ${PORT}:${PORT}
+    volumes:
+      - .:/home/api  # Espelha o código local no container
+      - /home/api/node_modules  # Isola o node_modules do container
+    environment:
+      NODE_ENV: development  # Modo desenvolvimento
+      CHOKIDAR_USEPOLLING: "true"  # Necessário para Docker no Windows/WSL
+      WATCHPACK_POLLING: "true"    # Garante que o NestJS detecte mudanças
+      PORT: ${PORT}
+      DB_HOST: ${DB_HOST}  # Nome do serviço no compose
+      DB_PORT: 5432
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    restart: unless-stopped     # Reinicia automaticamente se crashar
+
   database:
     container_name: nestjs-db
     image: postgres:latest
     environment:
-      POSTGRES_DB: test
-      POSTGRES_PASSWORD: root
-      POSTGRES_USER: root
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USERNAME}
     ports:
-      - 5432:5432
+      - ${DB_PORT}:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persiste dados do PostgreSQL
+
+volumes:
+  postgres_data:  # Volume para o PostgreSQL
+
+  # Comando para instalação dentro do container: 
+  # - docker compose exec api npm install
+
+  # Comando para copiar a node_modules do docker para a máquina host :
+  # - docker cp nest_api:/home/api/node_modules/. ./node_modules

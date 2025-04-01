@@ -6,8 +6,8 @@ import {
 import { Repository } from "typeorm";
 import { User } from "./user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { CreateUserInput } from "./dto/create-user";
-import { UpdateUserInput } from "./dto/update-use ";
+import { CreateUserInput } from "./dto/create-user.input";
+import { UpdateUserInput } from "./dto/update-use.input";
 
 @Injectable()
 export class UserService {
@@ -27,6 +27,15 @@ export class UserService {
         id,
       },
     });
+
+    if (!user) {
+      throw new NotFoundException("Usuário não encontrado.");
+    }
+    return user;
+  }
+
+  async findUserByEmail(email: string): Promise<User> {
+    const user = await this.userRepository.findOne({ where: { email } });
 
     if (!user) {
       throw new NotFoundException("Usuário não encontrado.");
